@@ -1,0 +1,149 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "engine_version",
+    "engine_call_id",
+    "correlation_id",
+    "org_id",
+    "employee_id",
+    "onboarding_status",
+    "record_validity",
+    "hard_errors",
+    "soft_warnings",
+    "missing_fields",
+    "document_status",
+    "risk_flags",
+    "next_actions",
+    "employee_record_patch"
+  ],
+  "properties": {
+    "schema_version": { "type": "string" },
+    "engine_version": { "type": "string" },
+    "engine_call_id": { "type": "string" },
+    "correlation_id": { "type": "string" },
+    "org_id": { "type": "string" },
+    "employee_id": { "type": "string" },
+
+    "onboarding_status": {
+      "type": "string",
+      "enum": ["incomplete", "ready_for_employment", "compliance_pending"]
+    },
+    "record_validity": {
+      "type": "string",
+      "enum": ["valid", "invalid"]
+    },
+
+    "hard_errors": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["code", "path", "message"],
+        "properties": {
+          "code": { "type": "string" },
+          "path": { "type": "string" },
+          "message": { "type": "string" }
+        }
+      }
+    },
+
+    "soft_warnings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["code", "path", "message"],
+        "properties": {
+          "code": { "type": "string" },
+          "path": { "type": "string" },
+          "message": { "type": "string" }
+        }
+      }
+    },
+
+    "missing_fields": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["path", "severity", "reason"],
+        "properties": {
+          "path": { "type": "string" },
+          "severity": { "type": "string", "enum": ["blocking", "non_blocking"] },
+          "reason": { "type": "string" }
+        }
+      }
+    },
+
+    "document_status": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "required_docs_total",
+        "required_docs_received",
+        "required_docs_verified",
+        "docs"
+      ],
+      "properties": {
+        "required_docs_total": { "type": "integer", "minimum": 0 },
+        "required_docs_received": { "type": "integer", "minimum": 0 },
+        "required_docs_verified": { "type": "integer", "minimum": 0 },
+        "docs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["doc_type", "required", "status"],
+            "properties": {
+              "doc_type": { "type": "string" },
+              "required": { "type": "boolean" },
+              "status": {
+                "type": "string",
+                "enum": ["not_requested", "requested", "received", "verified", "rejected"]
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "risk_flags": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["flag", "severity"],
+        "properties": {
+          "flag": { "type": "string" },
+          "severity": { "type": "string", "enum": ["low", "medium", "high", "critical"] }
+        }
+      }
+    },
+
+    "next_actions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["action", "target_path", "doc_type", "priority"],
+        "properties": {
+          "action": {
+            "type": "string",
+            "enum": ["request_field", "request_document", "verify_document", "verify_field"]
+          },
+          "target_path": { "type": "string" },
+          "doc_type": { "type": ["string", "null"] },
+          "priority": { "type": "string", "enum": ["low", "medium", "high"] }
+        }
+      }
+    },
+
+    "employee_record_patch": {
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {}
+}
+  }
+}

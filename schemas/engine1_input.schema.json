@@ -1,0 +1,98 @@
+{
+  "schema_version": "1.0.0",
+  "engine_version": "2026-03-01",
+  "engine_call_id": "string",
+  "correlation_id": "string",
+  "org_id": "string",
+  "actor": {
+    "actor_type": "employee|payroll_admin|manager|system",
+    "actor_id": "string",
+    "source": "string"
+  },
+  "request_type": "create|update|validate_only",
+  "employee_record": {
+    "employee_id": "string",
+    "identity": {
+      "legal_first_name": "string",
+      "legal_last_name": "string",
+      "date_of_birth": "YYYY-MM-DD",
+      "email": "string",
+      "phone": "string|null"
+    },
+    "work_location": {
+      "country_code": "string",
+      "state_code": "string|null",
+      "timezone": "string|null"
+    },
+    "employment": {
+      "start_date": "YYYY-MM-DD",
+      "employment_type": "full_time|part_time|casual|contractor",
+      "role_title": "string",
+      "department": "string|null",
+      "manager_employee_id": "string|null",
+      "pay_basis": {
+        "rate_type": "hourly|salary",
+        "amount": "decimal-string",
+        "currency": "string",
+        "period": "hour|year"
+      },
+      "standard_hours_per_week": "decimal-string|null",
+      "pay_schedule_group": "string|null"
+    },
+    "tax": {
+      "tax_profile_status": "not_provided|provided|verified",
+      "tax_id_last4": "string|null",
+      "withholding_declaration_received": "boolean|null"
+    },
+    "super": {
+      "super_profile_status": "not_provided|provided|verified",
+      "fund_name": "string|null",
+      "member_number_last4": "string|null",
+      "contribution_rate_percent": "decimal-string|null"
+    },
+    "banking": {
+      "banking_status": "not_provided|provided|verified",
+      "account_name": "string|null",
+      "bsb_last3": "string|null",
+      "account_number_last4": "string|null"
+    },
+    "documents": [
+      {
+        "doc_type": "string",
+        "required": "boolean",
+        "status": "not_requested|requested|received|verified|rejected",
+        "received_at": "string|null",
+        "verified_at": "string|null",
+        "notes": "string|null"
+      }
+    ],
+    "consents": {
+      "privacy_acknowledged": "boolean|null",
+      "policy_acknowledged": "boolean|null"
+    },
+    "status_overrides": {
+      "force_compliance_pending": "boolean|null",
+      "force_incomplete": "boolean|null"
+    },
+    "metadata": {
+      "created_at": "string|null",
+      "updated_at": "string|null",
+      "tags": ["string"]
+    }
+  },
+  "config": {
+    "required_fields": {
+      "identity": ["legal_first_name", "legal_last_name", "date_of_birth", "email"],
+      "employment": ["start_date", "employment_type", "role_title", "pay_basis"],
+      "tax": ["tax_profile_status"],
+      "super": ["super_profile_status"],
+      "banking": ["banking_status"],
+      "consents": ["privacy_acknowledged"]
+    },
+    "required_documents": [
+      { "doc_type": "right_to_work", "required": true },
+      { "doc_type": "bank_details_proof", "required": false }
+    ],
+    "allow_partial_record_save": true
+  }
+}

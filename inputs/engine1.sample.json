@@ -1,0 +1,49 @@
+{
+  "schema_version": "1.0.0",
+  "engine_version": "2026-03-01",
+  "engine_call_id": "call-001",
+  "correlation_id": "corr-001",
+  "org_id": "org-abc",
+  "actor": { "actor_type": "payroll_admin", "actor_id": "pay-admin-1", "source": "local" },
+  "request_type": "validate_only",
+  "employee_record": {
+    "employee_id": "emp-001",
+    "identity": {
+      "legal_first_name": "Sam",
+      "legal_last_name": "Lee",
+      "date_of_birth": "1999-01-01",
+      "email": "sam@example.com",
+      "phone": null
+    },
+    "work_location": { "country_code": "AU", "state_code": "NSW", "timezone": "Australia/Sydney" },
+    "employment": {
+      "start_date": "2026-02-01",
+      "employment_type": "casual",
+      "role_title": "Support",
+      "department": null,
+      "manager_employee_id": null,
+      "pay_basis": { "rate_type": "hourly", "amount": "35.00", "currency": "AUD", "period": "hour" },
+      "standard_hours_per_week": null,
+      "pay_schedule_group": null
+    },
+    "tax": { "tax_profile_status": "not_provided" },
+    "super": { "super_profile_status": "not_provided" },
+    "banking": { "banking_status": "not_provided" },
+    "documents": [
+      { "doc_type": "right_to_work", "required": true, "status": "not_requested" }
+    ],
+    "consents": { "privacy_acknowledged": true }
+  },
+  "config": {
+    "required_fields": {
+      "identity": ["legal_first_name", "legal_last_name", "date_of_birth", "email"],
+      "employment": ["start_date", "employment_type", "role_title", "pay_basis"],
+      "tax": ["tax_profile_status"],
+      "super": ["super_profile_status"],
+      "banking": ["banking_status"],
+      "consents": ["privacy_acknowledged"]
+    },
+    "required_documents": [{ "doc_type": "right_to_work", "required": true }],
+    "allow_partial_record_save": true
+  }
+}
