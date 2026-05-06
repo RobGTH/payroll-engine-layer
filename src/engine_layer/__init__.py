@@ -3,5 +3,6 @@
 __all__ = [
     "audit",
     "config",
+    "demo_data",
     "runner",
 ]
