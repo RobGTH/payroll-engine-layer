@@ -110,3 +110,47 @@ def sample_engine1_input() -> dict:
             "allow_partial_record_save": True,
         },
     }
+
+
+def sample_engine2_input() -> dict:
+    """Return an Engine 2 payroll-prep payload with intentional blockers."""
+    engine1_input = sample_engine1_input()
+    return {
+        "schema_version": "1.0.0",
+        "engine_version": "2026-03-01",
+        "engine_call_id": "call-002",
+        "correlation_id": engine1_input["correlation_id"],
+        "org_id": engine1_input["org_id"],
+        "actor": engine1_input["actor"],
+        "employee_record": engine1_input["employee_record"],
+        "engine1_readiness": {
+            "onboarding_status": "incomplete",
+            "record_validity": "invalid",
+            "blocking_issue_count": 3,
+            "warning_count": 1,
+        },
+        "pay_period": {
+            "pay_period_id": "pay-2026-02-01",
+            "start_date": "2026-02-01",
+            "end_date": "2026-02-14",
+            "pay_date": "2026-02-20",
+            "pay_schedule_group": "fortnightly-au",
+        },
+        "earnings": {
+            "pay_basis": engine1_input["employee_record"]["employment"]["pay_basis"],
+            "hours": {
+                "regular_hours": "20.0",
+                "overtime_hours": "0",
+                "unpaid_leave_hours": "0",
+            },
+            "gross_pay_override": None,
+        },
+        "deductions": [],
+        "config": {
+            "require_verified_banking": True,
+            "require_verified_tax": True,
+            "require_verified_super": True,
+            "block_if_onboarding_incomplete": True,
+            "allow_manual_review_to_proceed": False,
+        },
+    }
