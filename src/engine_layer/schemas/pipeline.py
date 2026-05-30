@@ -10,9 +10,11 @@ from .common import EngineBaseModel, EngineMeta
 from .engine1 import Engine1Output
 from .engine2 import Engine2Output
 
+PipelineSource = Literal["engine1", "engine2", "pipeline", "deterministic"]
+
 
 class PipelineIssue(EngineBaseModel):
-    source: Literal["engine1", "engine2", "pipeline"]
+    source: PipelineSource
     category: Literal["blocker", "warning", "informational"]
     code: str
     path: str
@@ -20,7 +22,7 @@ class PipelineIssue(EngineBaseModel):
 
 
 class PipelineNextAction(EngineBaseModel):
-    source: Literal["engine1", "engine2", "pipeline"]
+    source: PipelineSource
     action: str
     target_path: str
     priority: Literal["low", "medium", "high"]
@@ -40,12 +42,20 @@ class PayrollReadinessSummary(EngineBaseModel):
     warning_count: int
 
 
+class DeterministicReadinessSummary(EngineBaseModel):
+    blocking_issue_count: int
+    warning_count: int
+    informational_count: int
+    has_blockers: bool
+
+
 class PayrollReadinessPipelineOutput(EngineMeta):
     employee_id: str
     pay_period_id: str
     pipeline_status: Literal["blocked", "needs_review", "ready"]
     onboarding_readiness: OnboardingReadinessSummary
     payroll_readiness: PayrollReadinessSummary
+    deterministic_readiness: DeterministicReadinessSummary
     blocking_issues: list[PipelineIssue] = Field(default_factory=list)
     warnings: list[PipelineIssue] = Field(default_factory=list)
     informational_items: list[PipelineIssue] = Field(default_factory=list)
