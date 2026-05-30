@@ -8,10 +8,12 @@ from typing import TYPE_CHECKING
 
 from .audit import append_audit_event, build_engine_audit_event
 from .config import DEFAULT_ENGINE_VERSION, DEFAULT_MODEL, DEFAULT_SCHEMA_VERSION
+from .readiness import DeterministicReadinessResult, evaluate_deterministic_readiness
 from .runner import run_engine_with_audit
 from .schemas.engine1 import Engine1Input, Engine1Output
 from .schemas.engine2 import Engine1ReadinessSummary, Engine2Input, Engine2Output
 from .schemas.pipeline import (
+    DeterministicReadinessSummary,
     OnboardingReadinessSummary,
     PayrollReadinessPipelineOutput,
     PayrollReadinessSummary,
@@ -73,9 +75,14 @@ def build_engine2_input_from_engine1(
     return prepared_input
 
 
-def _pipeline_status(engine1_output: Engine1Output, engine2_output: Engine2Output) -> str:
+def _pipeline_status(
+    engine1_output: Engine1Output,
+    engine2_output: Engine2Output,
+    deterministic: DeterministicReadinessResult,
+) -> str:
     if (
-        engine1_output.record_validity == "invalid"
+        deterministic.has_blockers
+        or engine1_output.record_validity == "invalid"
         or engine1_output.onboarding_status == "incomplete"
         or engine2_output.payroll_prep_status == "blocked"
     ):
@@ -155,6 +162,7 @@ def _engine2_issues(output: Engine2Output, category: str) -> list[PipelineIssue]
 def _next_actions(
     engine1_output: Engine1Output,
     engine2_output: Engine2Output,
+    deterministic: DeterministicReadinessResult,
 ) -> list[PipelineNextAction]:
     actions = [
         PipelineNextAction(
@@ -174,6 +182,7 @@ def _next_actions(
         )
         for action in engine2_output.next_actions
     )
+    actions.extend(deterministic.next_actions)
     return actions
 
 
@@ -182,8 +191,10 @@ def build_pipeline_output(
     pipeline_call_id: str,
     engine1_output: Engine1Output,
     engine2_output: Engine2Output,
+    deterministic: DeterministicReadinessResult | None = None,
 ) -> PayrollReadinessPipelineOutput:
     """Combine engine outputs into one JSON-first readiness report."""
+    deterministic = deterministic or DeterministicReadinessResult()
     onboarding = OnboardingReadinessSummary(
         status=engine1_output.onboarding_status,
         record_validity=engine1_output.record_validity,
@@ -196,6 +207,12 @@ def build_pipeline_output(
         blocking_issue_count=len(engine2_output.blocking_issues),
         warning_count=len(engine2_output.warnings),
     )
+    deterministic_summary = DeterministicReadinessSummary(
+        blocking_issue_count=len(deterministic.blockers),
+        warning_count=len(deterministic.warnings),
+        informational_count=len(deterministic.informational_items),
+        has_blockers=deterministic.has_blockers,
+    )
     return PayrollReadinessPipelineOutput(
         schema_version=DEFAULT_SCHEMA_VERSION,
         engine_version=DEFAULT_ENGINE_VERSION,
@@ -204,15 +221,18 @@ def build_pipeline_output(
         org_id=engine1_output.org_id,
         employee_id=engine1_output.employee_id,
         pay_period_id=engine2_output.pay_period_id,
-        pipeline_status=_pipeline_status(engine1_output, engine2_output),
+        pipeline_status=_pipeline_status(engine1_output, engine2_output, deterministic),
         onboarding_readiness=onboarding,
         payroll_readiness=payroll,
-        blocking_issues=_engine1_blockers(engine1_output)
+        deterministic_readiness=deterministic_summary,
+        blocking_issues=deterministic.blockers
+        + _engine1_blockers(engine1_output)
         + _engine2_issues(engine2_output, "blocker"),
-        warnings=_engine1_warnings(engine1_output)
+        warnings=deterministic.warnings
+        + _engine1_warnings(engine1_output)
         + _engine2_issues(engine2_output, "warning"),
-        informational_items=[],
-        recommended_next_actions=_next_actions(engine1_output, engine2_output),
+        informational_items=deterministic.informational_items,
+        recommended_next_actions=_next_actions(engine1_output, engine2_output, deterministic),
         engine1_output=engine1_output,
         engine2_output=engine2_output,
     )
@@ -262,6 +282,11 @@ def run_payroll_readiness_pipeline(
                 "record_validity": output.record_validity,
             },
         )
+        deterministic = evaluate_deterministic_readiness(
+            engine1_input=engine1_input,
+            engine2_input=engine2_input,
+            engine1_output=engine1_output,
+        )
         prepared_engine2_input = build_engine2_input_from_engine1(
             engine2_input,
             engine1_output,
@@ -285,6 +310,7 @@ def run_payroll_readiness_pipeline(
             pipeline_call_id=pipeline_call_id,
             engine1_output=engine1_output,
             engine2_output=engine2_output,
+            deterministic=deterministic,
         )
     except Exception as exc:
         append_audit_event(
@@ -304,6 +330,7 @@ def run_payroll_readiness_pipeline(
                 "pipeline_status": output.pipeline_status,
                 "blocking_issues_count": len(output.blocking_issues),
                 "warnings_count": len(output.warnings),
+                "deterministic_blockers_count": output.deterministic_readiness.blocking_issue_count,
             },
             **common_pipeline_event,
         ),
