@@ -1,0 +1,138 @@
+{
+  "schema_version": "1.0.0",
+  "engine_version": "2026-03-01",
+  "engine_call_id": "pipeline-002",
+  "correlation_id": "corr-002",
+  "org_id": "org-abc",
+  "employee_id": "emp-002",
+  "pay_period_id": "pay-2026-02-01",
+  "pipeline_status": "needs_review",
+  "onboarding_readiness": {
+    "status": "compliance_pending",
+    "record_validity": "valid",
+    "blocking_issue_count": 0,
+    "warning_count": 1
+  },
+  "payroll_readiness": {
+    "status": "needs_review",
+    "include_in_pay_run": false,
+    "blocking_issue_count": 0,
+    "warning_count": 1
+  },
+  "deterministic_readiness": {
+    "blocking_issue_count": 0,
+    "warning_count": 0,
+    "informational_count": 1,
+    "has_blockers": false
+  },
+  "blocking_issues": [],
+  "warnings": [
+    {
+      "source": "engine1",
+      "category": "warning",
+      "code": "compliance_pending",
+      "path": "engine1_output.onboarding_status",
+      "message": "Onboarding is valid but still compliance pending."
+    },
+    {
+      "source": "engine2",
+      "category": "warning",
+      "code": "hours_need_review",
+      "path": "earnings.hours.regular_hours",
+      "message": "Hours should be reviewed before calculation."
+    }
+  ],
+  "informational_items": [
+    {
+      "source": "deterministic",
+      "category": "informational",
+      "code": "deterministic_checks_clear",
+      "path": "pipeline.deterministic_readiness",
+      "message": "No deterministic readiness blockers were found."
+    }
+  ],
+  "recommended_next_actions": [
+    {
+      "source": "engine2",
+      "action": "review_hours",
+      "target_path": "earnings.hours",
+      "priority": "medium"
+    }
+  ],
+  "engine1_output": {
+    "schema_version": "1.0.0",
+    "engine_version": "2026-03-01",
+    "engine_call_id": "call-101",
+    "correlation_id": "corr-002",
+    "org_id": "org-abc",
+    "employee_id": "emp-002",
+    "onboarding_status": "compliance_pending",
+    "record_validity": "valid",
+    "hard_errors": [],
+    "soft_warnings": [
+      {
+        "code": "compliance_pending",
+        "path": "engine1_output.onboarding_status",
+        "message": "Onboarding is valid but still compliance pending."
+      }
+    ],
+    "missing_fields": [],
+    "document_status": {
+      "required_docs_total": 1,
+      "required_docs_received": 1,
+      "required_docs_verified": 1,
+      "docs": [
+        {
+          "doc_type": "right_to_work",
+          "required": true,
+          "status": "verified"
+        }
+      ]
+    },
+    "risk_flags": [],
+    "next_actions": [],
+    "employee_record_patch": {}
+  },
+  "engine2_output": {
+    "schema_version": "1.0.0",
+    "engine_version": "2026-03-01",
+    "engine_call_id": "call-102",
+    "correlation_id": "corr-002",
+    "org_id": "org-abc",
+    "employee_id": "emp-002",
+    "pay_period_id": "pay-2026-02-01",
+    "payroll_prep_status": "needs_review",
+    "include_in_pay_run": false,
+    "blocking_issues": [],
+    "warnings": [
+      {
+        "code": "hours_need_review",
+        "path": "earnings.hours.regular_hours",
+        "severity": "warning",
+        "message": "Hours should be reviewed before calculation."
+      }
+    ],
+    "next_actions": [
+      {
+        "action": "review_hours",
+        "target_path": "earnings.hours",
+        "priority": "medium"
+      }
+    ],
+    "payroll_prep_summary": {
+      "employee_id": "emp-002",
+      "pay_period_id": "pay-2026-02-01",
+      "pay_schedule_group": "fortnightly-au",
+      "pay_basis": {
+        "rate_type": "hourly",
+        "amount": "35.00",
+        "currency": "AUD",
+        "period": "hour"
+      },
+      "estimated_gross_pay": null,
+      "deductions_total": null,
+      "ready_for_calculation": false,
+      "requires_manual_review": true
+    }
+  }
+}
