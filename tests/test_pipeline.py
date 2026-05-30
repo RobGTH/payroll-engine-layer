@@ -10,6 +10,7 @@ from engine_layer.pipeline import (
     build_pipeline_output,
     run_payroll_readiness_pipeline,
 )
+from engine_layer.readiness import evaluate_deterministic_readiness
 from engine_layer.schemas.engine1 import Engine1Output
 from engine_layer.schemas.engine2 import Engine2Output
 
@@ -151,6 +152,8 @@ def test_pipeline_success_runs_engine1_then_engine2_and_writes_audit(tmp_path):
     )
 
     assert output.pipeline_status == "blocked"
+    assert output.deterministic_readiness.has_blockers is True
+    assert output.deterministic_readiness.blocking_issue_count == 5
     assert output.employee_id == "emp-001"
     assert len(client.responses.calls) == 2
     assert client.responses.calls[0]["text"]["format"]["name"] == "engine1_output"
@@ -173,6 +176,7 @@ def test_pipeline_success_runs_engine1_then_engine2_and_writes_audit(tmp_path):
         "engine_call_completed",
         "pipeline_completed",
     ]
+    assert events[-1]["event"]["details"]["deterministic_blockers_count"] == 5
 
 
 def test_pipeline_engine1_failure_stops_before_engine2_and_writes_failure(tmp_path):
@@ -221,29 +225,35 @@ def test_pipeline_engine2_failure_writes_pipeline_failure(tmp_path):
     ]
 
 
-def test_pipeline_summary_combines_blockers_warnings_and_actions():
+def test_pipeline_summary_combines_deterministic_engine_blockers_warnings_and_actions():
     engine1_output = Engine1Output.model_validate(engine1_payload())
     engine2_output = Engine2Output.model_validate(engine2_payload())
+    deterministic = evaluate_deterministic_readiness(
+        engine1_input=sample_engine1_input(),
+        engine2_input=sample_engine2_input(),
+        engine1_output=engine1_output,
+    )
 
     output = build_pipeline_output(
         pipeline_call_id="pipe-001",
         engine1_output=engine1_output,
         engine2_output=engine2_output,
+        deterministic=deterministic,
     )
 
     assert output.pipeline_status == "blocked"
     assert output.onboarding_readiness.blocking_issue_count == 2
     assert output.payroll_readiness.blocking_issue_count == 1
-    assert [issue.category for issue in output.blocking_issues] == [
-        "blocker",
-        "blocker",
-        "blocker",
+    assert output.deterministic_readiness.blocking_issue_count == 5
+    assert [issue.source for issue in output.blocking_issues[:5]] == [
+        "deterministic",
+        "deterministic",
+        "deterministic",
+        "deterministic",
+        "deterministic",
     ]
     assert [issue.category for issue in output.warnings] == ["warning", "warning"]
-    assert [action.source for action in output.recommended_next_actions] == [
-        "engine1",
-        "engine2",
-    ]
+    assert "deterministic" in [action.source for action in output.recommended_next_actions]
 
 
 def test_build_engine2_input_from_engine1_does_not_mutate_original():
