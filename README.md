@@ -47,3 +47,13 @@ PYTHONPATH=src python scripts/demo_run_engine1.py
 
 The demo appends JSONL audit events to `audit/audit_events.jsonl` and prints the Engine 1
 output JSON to the terminal.
+
+## Pipeline report export
+
+The payroll readiness pipeline can print JSON to the terminal or write the same report to a file:
+
+```bash
+PYTHONPATH=src python scripts/demo_run_pipeline.py --output output/payroll-readiness-report.json
+```
+
+The report remains JSON-first so it can be inspected directly or passed to a future dashboard.
