@@ -1,0 +1,131 @@
+{
+  "schema_version": "1.0.0",
+  "engine_version": "2026-03-01",
+  "engine_call_id": "pipeline-001",
+  "correlation_id": "corr-001",
+  "org_id": "org-abc",
+  "employee_id": "emp-001",
+  "pay_period_id": "pay-2026-02-01",
+  "pipeline_status": "blocked",
+  "onboarding_readiness": {
+    "status": "incomplete",
+    "record_validity": "invalid",
+    "blocking_issue_count": 1,
+    "warning_count": 0
+  },
+  "payroll_readiness": {
+    "status": "blocked",
+    "include_in_pay_run": false,
+    "blocking_issue_count": 1,
+    "warning_count": 0
+  },
+  "deterministic_readiness": {
+    "blocking_issue_count": 1,
+    "warning_count": 0,
+    "informational_count": 0,
+    "has_blockers": true
+  },
+  "blocking_issues": [
+    {
+      "source": "deterministic",
+      "category": "blocker",
+      "code": "banking_not_verified",
+      "path": "employee_record.banking.banking_status",
+      "message": "Banking details must be verified before payroll preparation can proceed."
+    },
+    {
+      "source": "engine1",
+      "category": "blocker",
+      "code": "missing_field",
+      "path": "employee_record.consents.privacy_acknowledged",
+      "message": "Privacy acknowledgement is required."
+    },
+    {
+      "source": "engine2",
+      "category": "blocker",
+      "code": "banking_not_verified",
+      "path": "employee_record.banking.banking_status",
+      "message": "Banking details must be verified."
+    }
+  ],
+  "warnings": [],
+  "informational_items": [],
+  "recommended_next_actions": [
+    {
+      "source": "deterministic",
+      "action": "verify_banking",
+      "target_path": "employee_record.banking",
+      "priority": "high"
+    }
+  ],
+  "engine1_output": {
+    "schema_version": "1.0.0",
+    "engine_version": "2026-03-01",
+    "engine_call_id": "call-001",
+    "correlation_id": "corr-001",
+    "org_id": "org-abc",
+    "employee_id": "emp-001",
+    "onboarding_status": "incomplete",
+    "record_validity": "invalid",
+    "hard_errors": [],
+    "soft_warnings": [],
+    "missing_fields": [
+      {
+        "path": "employee_record.consents.privacy_acknowledged",
+        "severity": "blocking",
+        "reason": "Privacy acknowledgement is required."
+      }
+    ],
+    "document_status": {
+      "required_docs_total": 1,
+      "required_docs_received": 0,
+      "required_docs_verified": 0,
+      "docs": [
+        {
+          "doc_type": "right_to_work",
+          "required": true,
+          "status": "not_requested"
+        }
+      ]
+    },
+    "risk_flags": [],
+    "next_actions": [],
+    "employee_record_patch": {}
+  },
+  "engine2_output": {
+    "schema_version": "1.0.0",
+    "engine_version": "2026-03-01",
+    "engine_call_id": "call-002",
+    "correlation_id": "corr-001",
+    "org_id": "org-abc",
+    "employee_id": "emp-001",
+    "pay_period_id": "pay-2026-02-01",
+    "payroll_prep_status": "blocked",
+    "include_in_pay_run": false,
+    "blocking_issues": [
+      {
+        "code": "banking_not_verified",
+        "path": "employee_record.banking.banking_status",
+        "severity": "blocking",
+        "message": "Banking details must be verified."
+      }
+    ],
+    "warnings": [],
+    "next_actions": [],
+    "payroll_prep_summary": {
+      "employee_id": "emp-001",
+      "pay_period_id": "pay-2026-02-01",
+      "pay_schedule_group": "fortnightly-au",
+      "pay_basis": {
+        "rate_type": "hourly",
+        "amount": "35.00",
+        "currency": "AUD",
+        "period": "hour"
+      },
+      "estimated_gross_pay": null,
+      "deductions_total": null,
+      "ready_for_calculation": false,
+      "requires_manual_review": true
+    }
+  }
+}
