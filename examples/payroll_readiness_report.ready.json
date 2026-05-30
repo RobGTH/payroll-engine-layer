@@ -1,0 +1,110 @@
+{
+  "schema_version": "1.0.0",
+  "engine_version": "2026-03-01",
+  "engine_call_id": "pipeline-003",
+  "correlation_id": "corr-003",
+  "org_id": "org-abc",
+  "employee_id": "emp-003",
+  "pay_period_id": "pay-2026-02-01",
+  "pipeline_status": "ready",
+  "onboarding_readiness": {
+    "status": "ready_for_employment",
+    "record_validity": "valid",
+    "blocking_issue_count": 0,
+    "warning_count": 0
+  },
+  "payroll_readiness": {
+    "status": "ready_for_calculation",
+    "include_in_pay_run": true,
+    "blocking_issue_count": 0,
+    "warning_count": 0
+  },
+  "deterministic_readiness": {
+    "blocking_issue_count": 0,
+    "warning_count": 0,
+    "informational_count": 1,
+    "has_blockers": false
+  },
+  "blocking_issues": [],
+  "warnings": [],
+  "informational_items": [
+    {
+      "source": "deterministic",
+      "category": "informational",
+      "code": "deterministic_checks_clear",
+      "path": "pipeline.deterministic_readiness",
+      "message": "No deterministic readiness blockers were found."
+    }
+  ],
+  "recommended_next_actions": [
+    {
+      "source": "engine2",
+      "action": "approve_for_pay_run",
+      "target_path": "pay_period.pay_period_id",
+      "priority": "medium"
+    }
+  ],
+  "engine1_output": {
+    "schema_version": "1.0.0",
+    "engine_version": "2026-03-01",
+    "engine_call_id": "call-201",
+    "correlation_id": "corr-003",
+    "org_id": "org-abc",
+    "employee_id": "emp-003",
+    "onboarding_status": "ready_for_employment",
+    "record_validity": "valid",
+    "hard_errors": [],
+    "soft_warnings": [],
+    "missing_fields": [],
+    "document_status": {
+      "required_docs_total": 1,
+      "required_docs_received": 1,
+      "required_docs_verified": 1,
+      "docs": [
+        {
+          "doc_type": "right_to_work",
+          "required": true,
+          "status": "verified"
+        }
+      ]
+    },
+    "risk_flags": [],
+    "next_actions": [],
+    "employee_record_patch": {}
+  },
+  "engine2_output": {
+    "schema_version": "1.0.0",
+    "engine_version": "2026-03-01",
+    "engine_call_id": "call-202",
+    "correlation_id": "corr-003",
+    "org_id": "org-abc",
+    "employee_id": "emp-003",
+    "pay_period_id": "pay-2026-02-01",
+    "payroll_prep_status": "ready_for_calculation",
+    "include_in_pay_run": true,
+    "blocking_issues": [],
+    "warnings": [],
+    "next_actions": [
+      {
+        "action": "approve_for_pay_run",
+        "target_path": "pay_period.pay_period_id",
+        "priority": "medium"
+      }
+    ],
+    "payroll_prep_summary": {
+      "employee_id": "emp-003",
+      "pay_period_id": "pay-2026-02-01",
+      "pay_schedule_group": "fortnightly-au",
+      "pay_basis": {
+        "rate_type": "hourly",
+        "amount": "35.00",
+        "currency": "AUD",
+        "period": "hour"
+      },
+      "estimated_gross_pay": null,
+      "deductions_total": null,
+      "ready_for_calculation": true,
+      "requires_manual_review": false
+    }
+  }
+}
